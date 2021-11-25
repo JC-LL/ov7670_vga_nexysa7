@@ -1,7 +1,5 @@
-ov7670_vga_Nexys2
+#ov7670 vga NexysA7
 
-Interfacing Camera Module OV7670 with VGA Monitor through Xilinx FPGA Development Board Nexys2
+Interfacing Camera Module OV7670 with VGA Monitor through Xilinx FPGA Development Board Nexysa7
 
-Warning:
-  Your design might has diffent pin assignment.
- 
+Warning: WIP
