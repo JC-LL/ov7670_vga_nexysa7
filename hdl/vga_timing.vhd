@@ -2,17 +2,17 @@
 -- This entity synchronize hsync and vsync to vga
 -- Thanks to Pong P. Chu for creating basic things.
 --------------------------------------------------------
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-
-entity VGA_timing_synch is
-    Port ( clk25 : in  STD_LOGIC;
-           Hsync : out  STD_LOGIC;
-           Vsync : out  STD_LOGIC;
-           activeArea : out  STD_LOGIC);
-end VGA_timing_synch;
+entity vga_timing_synch is
+  port (
+    clk25      : in  std_logic;
+    hsync      : out  std_logic;
+    vsync      : out  std_logic;
+    activearea : out  std_logic);
+end vga_timing_synch;
 
 architecture Behavioral of VGA_timing_synch is
 
@@ -31,8 +31,10 @@ architecture Behavioral of VGA_timing_synch is
   signal hcnt,vcnt : INTEGER := 0;
 
 begin
+
   clk_vga <= clk25;
-  count_proc : process(clk_vga,vcnt,hcnt) begin
+
+  count_proc : process(clk_vga) begin
   		if rising_edge(clk_vga) then
   			if (hcnt = HP) then
   				hcnt <= 0;
@@ -67,7 +69,10 @@ begin
   	end if;
   end process vsync_gen;
 
+  -- 4*160=640 ; 4*120=480
   video <= '1' when (hcnt < 160) and (vcnt < 120) else '0';
+  --video <= '1' when (hcnt < HD) and (vcnt < VD) else '0';
+
   activeArea <= video;
 
 end Behavioral;

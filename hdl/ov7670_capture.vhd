@@ -11,20 +11,21 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity ov7670_capture is
+  generic (NB_BITS_ADDRESS : natural := 15);
   Port (
-    pclk : in  STD_LOGIC;
-    vsync : in  STD_LOGIC;
-    href : in  STD_LOGIC;
-    d : in  STD_LOGIC_VECTOR (7 downto 0);
-    addr : out  STD_LOGIC_VECTOR (14 downto 0);
-    dout : out  STD_LOGIC_VECTOR (11 downto 0);
-    we : out  STD_LOGIC);
+    pclk  : in  std_logic;
+    vsync : in  std_logic;
+    href  : in  std_logic;
+    d     : in  std_logic_vector(7 downto 0);
+    addr  : out  std_logic_vector(NB_BITS_ADDRESS-1 downto 0);
+    dout  : out  std_logic_vector(11 downto 0);
+    we    : out  std_logic);
 end ov7670_capture;
 
 architecture Behavioral of ov7670_capture is
    signal d_latch      : std_logic_vector(15 downto 0) := (others => '0');
-   signal address      : STD_LOGIC_VECTOR(14 downto 0) := (others => '0');
-   signal row         : std_logic_vector(1 downto 0)  := (others => '0');
+   signal address      : std_logic_vector(NB_BITS_ADDRESS-1 downto 0) := (others => '0');
+   signal row          : std_logic_vector(1 downto 0)  := (others => '0');
    signal href_last    : std_logic_vector(6 downto 0)  := (others => '0');
    signal we_reg       : std_logic := '0';
    signal href_hold    : std_logic := '0';

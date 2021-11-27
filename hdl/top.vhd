@@ -14,60 +14,70 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity top is
 	Port	(
-		clk100	   : in STD_LOGIC; -- Crystal Oscilator 100MHz
+		clk100	   : in std_logic; -- Crystal Oscilator 100MHz
 		---------------------------------------------------------
 		-- switches & buttons
 		---------------------------------------------------------
-		button_d	 : in STD_LOGIC; -- Push Button
+		button_d	 : in std_logic; -- Push Button
 		---------------------------------------------------------
 		-- LEDs for monitoring
 		---------------------------------------------------------
-		led        : out STD_LOGIC_vector(15 downto 0);
+		led        : out std_logic_vector(15 downto 0);
 		-- 0 : Indicates configuration has been done
 		---------------------------------------------------------
 		-- OV7670
 		---------------------------------------------------------
-		ov7670_pclk  : in  STD_LOGIC;
-		ov7670_xclk  : out STD_LOGIC;
-		ov7670_vsync : in  STD_LOGIC;
-		ov7670_href  : in  STD_LOGIC;
-		ov7670_data  : in  STD_LOGIC_vector(7 downto 0);
-		ov7670_sioc  : out STD_LOGIC;
-		ov7670_siod  : inout STD_LOGIC;
-		ov7670_pwdn  : out STD_LOGIC;
-		ov7670_reset : out STD_LOGIC;
+		ov7670_pclk  : in  std_logic;
+		ov7670_xclk  : out std_logic;
+		ov7670_vsync : in  std_logic;
+		ov7670_href  : in  std_logic;
+		ov7670_data  : in  std_logic_vector(7 downto 0);
+		ov7670_sioc  : out std_logic;
+		ov7670_siod  : inout std_logic;
+		ov7670_pwdn  : out std_logic;
+		ov7670_reset : out std_logic;
 		---------------------------------------------------------
 		--VGA
 		---------------------------------------------------------
-		vga_hsync : out STD_LOGIC; --T4
-		vga_vsync : out STD_LOGIC; --U3
-		vga_rgb	  : out STD_LOGIC_VECTOR(11 downto 0)
+		vga_hsync : out std_logic; --t4
+		vga_vsync : out std_logic; --u3
+		vga_rgb	  : out std_logic_vector(11 downto 0)
 	);
 end top;
 
 architecture structural of top is
 
-	signal clk25 : STD_LOGIC;
-	signal clk50 : STD_LOGIC;
-	signal resend : STD_LOGIC;
+	constant NB_BITS_QVGA_ADDR : natural := 15; --2**15=32768  =~ 320*240 =  76800
+	constant NB_BITS_VGA_ADDR  : natural := 19; --2**19=524288 =~ 640*480 = 307200
 
-	-- RAM
-	signal wren : STD_LOGIC;
-	signal wr_d: STD_LOGIC_VECTOR(11 downto 0);
-	signal wr_a: STD_LOGIC_VECTOR(14 downto 0);
-	signal rd_d: STD_LOGIC_VECTOR(11 downto 0);
-	signal rd_a: STD_LOGIC_VECTOR(14 downto 0);
+	-- CONFIGURE here :
+	constant NB_BITS_ADDR : natural := NB_BITS_QVGA_ADDR;
 
-	--VGA
-	signal active : STD_LOGIC;
-	signal vga_vsync_sig : STD_LOGIC;
+	signal clk25  : std_logic;
+	signal clk50  : std_logic;
+	signal resend : std_logic;
 
-	-- LED monitoring
+	-- ram
+	signal wren : std_logic;
+	signal wr_d: std_logic_vector(11 downto 0);
+	signal wr_a: std_logic_vector(NB_BITS_ADDR-1 downto 0);
+	signal rd_d: std_logic_vector(11 downto 0);
+	signal rd_a: std_logic_vector(NB_BITS_ADDR-1 downto 0);
+
+	--vga
+	signal active : std_logic;
+	signal vga_vsync_sig : std_logic;
+
+	-- led monitoring
 	signal conf_done : std_logic;
 begin
-
+	----------------------------------------------
+	-- Monitoring
+	----------------------------------------------
 	led(0) <= conf_done;
+	led(1) <= clk25;
 
+	-----------------------------------------------
 	inst_clk25: entity work.clk25gen
 		port map(
 			clk100 => clk100,
@@ -93,6 +103,7 @@ begin
 			xclk_out  => ov7670_xclk);
 
 	inst_ov7670capt: entity work.ov7670_capture
+		generic map(NB_BITS_ADDRESS => NB_BITS_ADDR)
 		port map(
 			pclk  => ov7670_pclk,
 			vsync => ov7670_vsync,
@@ -104,8 +115,8 @@ begin
 
 	frame_buffer : entity work.dual_port_dual_clock_ram
 		generic map(
-			ADDR_WIDTH => 15, --15,
-			DATA_WIDTH => 12  --16
+			ADDR_WIDTH => NB_BITS_ADDR, --22 to get VGA 640*480. was 15,
+			DATA_WIDTH => 12  --3*4
 		)
 		port map(
 			clka   => ov7670_pclk,
@@ -119,6 +130,11 @@ begin
 		);
 
 	inst_addrgen : entity work.address_generator
+		generic map(
+			NB_BITS_ADDR => NB_BITS_ADDR,
+			XVGA_WIDTH   => 160,
+			XVGA_HEIGHT  => 120
+		)
 		port map(
 			clk25   => clk25,
 			enable  => active,
@@ -142,5 +158,6 @@ begin
 		);
 
 	vga_vsync <= vga_vsync_sig;
+
 
 end structural;
