@@ -15,7 +15,7 @@ read_vhdl  ../hdl/ov7670_controller.vhd
 read_vhdl  ../hdl/ov7670_capture.vhd
 read_vhdl  ../hdl/ov7670_SCCB.vhd
 read_vhdl  ../hdl/vga_timing.vhd
-read_vhdl  ../hdl/vga_imagegenerator.vhd
+read_vhdl  ../hdl/vga_image_generator.vhd
 read_vhdl  ../hdl/address_generator.vhd
 read_vhdl  ../hdl/dual_port_dual_clock_ram.vhd
 read_vhdl  ../hdl/top.vhd

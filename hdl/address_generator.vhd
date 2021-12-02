@@ -8,11 +8,11 @@ entity address_generator is
     XVGA_WIDTH : natural  := 160;
     XVGA_HEIGHT : natural := 120
   );
-  Port (
-    clk25 : in STD_LOGIC;
-    enable : in STD_LOGIC;
-    vsync : in STD_LOGIC;
-    address : out STD_LOGIC_VECTOR (NB_BITS_ADDR-1 downto 0)
+  port (
+    clk25   : in  std_logic;
+    enable  : in  std_logic;
+    vsync   : in  std_logic;
+    address : out std_logic_vector (NB_BITS_ADDR-1 downto 0)
   );
 end address_generator;
 
@@ -26,18 +26,17 @@ begin
   address <= std_logic_vector(addr);
   --address <= "00" & std_logic_vector(addr(NB_BITS_ADDR-1 downto 2));
 
-  process (clk25) begin
+  process(clk25)
+  begin
   	if rising_edge (clk25) then
-  		if (enable='1') then
-  			if (addr < XVGA_WIDTH * XVGA_HEIGHT) then
+      if vsync='0' then
+        addr <= to_unsigned(0,NB_BITS_ADDR);
+      elsif enable='1' then
+  			if addr < XVGA_WIDTH * XVGA_HEIGHT then
   				addr <= addr + 1 ;
   			end if;
   		end if;
-
-  		if vsync = '0' then
-  			addr <= (others => '0');
-  		end if;
-  	end if;
+    end if;
   end process;
 
 end Behavioral;
